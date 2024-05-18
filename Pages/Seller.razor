@@ -1,0 +1,247 @@
+﻿@page "/seller"
+@inject UserService userservice;
+@inject NavigationManager nm;
+@inject Authorization auth;
+@using AgroEase1.Data;
+@using System.ComponentModel.DataAnnotations;
+<style>
+    body {
+        background-image: url('https://cdn.discordapp.com/attachments/948596391855394826/1108360422790271006/login_page_bg.jpg');
+        font-family: 'Arial', sans-serif;
+        background-size: cover;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 ,h2{
+        color: #333;
+        font-weight:bold;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    input,select,InputFile,
+    textarea {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    li {
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        padding: 2px;
+        font-size:18px;
+        border-radius: 1px;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+    }
+</style>
+
+@if(auth.Authorized_User())
+{
+    <EditForm Model="pm">
+        <DataAnnotationsValidator />
+        <div class="container">
+            <div class="rules-section">
+                <h2>Read Carefully </h2>
+                <ul>
+                    <li>Provide accurate and detailed information about your products.</li>
+                    <li>Upload clear and high-quality images for each product.</li>
+                    <li>Specify the category of your product (e.g., Ghandam, Mongpali, Fruits, etc.).</li>
+                    <li>Set a reasonable and competitive price for your products.</li>
+                    <li>Indicate the availability of your products.</li>
+                    <li>Describe the condition of used items (if applicable).</li>
+                    <li>Mention the quantity of available items.</li>
+                    <li>Do not upload inappropriate or offensive content.</li>
+                    <li>Follow all local laws and regulations related to selling agricultural products.</li>
+                </ul>
+            </div>
+            <h1>Seller Dashboard</h1>
+            <label for="productCategory">Product Category:</label>
+            <InputSelect id="productCategory" @bind-Value="pm.Category">
+                <option value="ghandam">Ghandam</option>
+                <option value="mongpali">Mongpali</option>
+                <option value="fruits">Fruits</option>
+                <option value="vegetables">Vegetables</option>
+                <option value="machinery">Machinery</option>
+                <option value="pesticides">Pesticides</option>
+                <option value="Dairy Produtcs">Dairy Products</option>
+                <option value="Dal">Pulses</option>
+                <option value="pesticides">Others</option>
+            </InputSelect>
+            <ValidationMessage For="@(() => pm.Category)" />
+            <label for="productName">Product Name:</label>
+            <input id="productName" @bind-value="pm.Product_name" />
+            <ValidationMessage For="@(() => pm.Product_name)" />
+
+            <label for="productDescription">Product Description:</label>
+            <input id="productDescription" @bind-value="pm.Product_description"></input>
+            <ValidationMessage For="@(() => pm.Product_description)" />
+            <label for="productPrice">Product Price:</label>
+            <input type="number" id="productPrice" @bind-value="pm.Product_price" />
+            <ValidationMessage For="@(() => pm.Product_price)" />
+            <label for="fileInput">Product Images :</label>
+            <i class="writeIcon fas fa fa-plus"></i>
+            <InputFile type="file" id="fileInput" accept="image/*" OnChange="HandleFileChange" />
+            <ValidationMessage For="@(() => pm.prduct_image)" />
+            <label for="productIsAvailable">Is Available:</label>
+
+            <input type="checkbox" id="productIsAvailable" @bind-value="pm.Isavailable" />
+
+            <label for="productCondition">Condition:</label>
+            <input id="productCondition" @bind-value="pm.Product_condition" />
+            <ValidationMessage For="@(() => pm.Product_condition)" />
+            <label for="productQuantity">Quantity:</label>
+            <input id="productQuantity" @bind-value="pm.Product_quantity" />
+            <ValidationMessage For="@(() => pm.Product_quantity)" />
+            <button type="submit" @onclick="AddProduct">Add Product</button>
+
+            @if (sellerProducts.Any())
+            {
+                <h2>Your Products</h2>
+                <ul>
+                    @foreach (var product in sellerProducts)
+                    {
+                        <li>
+                            <strong>@product.Product_name</strong>
+                            <p>@product.Category</p>
+                            <p>@product.Product_description</p>
+                            <p>Price: $@product.Product_price</p>
+                            <p>Images: <img src="@($"data:image/png;base64,{pm.prduct_image}")" alt="Product Images" /></p>
+                            <p>Is Available: @product.Isavailable</p>
+                            <p>Condition: @product.Product_condition</p>
+                            <p>Quantity: @product.Product_quantity</p>
+                        </li>
+                    }
+                </ul>
+            }
+             
+        </div>
+        @*   @if (showErrorMessages)
+    {
+    <div>
+    @foreach (var error in validationErrors)
+    {
+    <p>@error</p>
+    }
+    </div>
+    } *@
+    </EditForm>
+}
+else
+{
+    <h2>First login your account...!</h2>
+}
+
+@code {
+
+
+    private List<Product_model> sellerProducts = new List<Product_model>();
+    // private Product newProduct = new Product();
+
+    public int userid{ get; set; }
+
+    Product_model pm { get; set; } = new Product_model();
+    private bool showErrorMessages = false;
+    private List<string> validationErrors = new List<string>();
+    /*
+    private List<IBrowserFile> selectedFiles = new List<IBrowserFile>();
+    public void HandleFileChange(InputFileChangeEventArgs e)
+        {
+        selectedFiles = e.GetMultipleFiles().ToList();
+        foreach (var file in selectedFiles)
+            {
+            var buffer = new byte[file.Size];
+            file.OpenReadStream().Read(buffer, 0, (int)file.Size);
+            newProduct.ImagesUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+    }
+    }
+    */
+
+    private void AddProduct()
+    {
+        var isValid = ValidateForm();
+
+        if (isValid)
+        {
+            sellerProducts.Add(pm);
+            DB_helper.Saveproduct(pm,userservice.GetAuthenticatedUserId());
+            pm = new Product_model();
+            nm.NavigateTo("/store");
+            showErrorMessages = false; // Hide error messages after successful addition
+            validationErrors.Clear(); // Clear validation errors
+
+        }
+        else
+        {
+            showErrorMessages = true;
+        }
+    }
+
+    private bool ValidateForm()
+    {
+        var context = new ValidationContext(pm, null, null);
+        var results = new List<ValidationResult>();
+
+        var isValid = Validator.TryValidateObject(pm, context, results, true);
+
+        if (!isValid)
+        {
+            validationErrors = results.Select(r => r.ErrorMessage).ToList();
+        }
+
+        return isValid;
+    }
+    private string base64string { get; set; }
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if(file!=null)
+        {
+            using (var memorystream=new MemoryStream())
+            {
+                await file.OpenReadStream().CopyToAsync(memorystream);
+                base64string = Convert.ToBase64String(memorystream.ToArray());
+                pm.prduct_image = base64string;
+            }
+        }
+    }
+
+}

@@ -1,0 +1,256 @@
+﻿@page "/signup"
+@inject NavigationManager nm
+<PageTitle>Signup Page</PageTitle>
+
+<head>
+    <style>
+        body {
+            background-image: url('https://cdn.discordapp.com/attachments/948596391855394826/1108360422790271006/login_page_bg.jpg' );
+            background-size: cover;
+            background-position-y: center;
+            background-repeat: no-repeat;
+        }
+
+        .login_form {
+            height: 100vh;
+            width:70vh;
+            background: rgb(255, 255, 255);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 1) 23%, rgba(247, 255, 238, 1) 81%, rgba(242, 255, 225, 1) 100%);
+            border-radius: 0 0 50px 0;
+            padding: 50px 50px;
+            box-shadow: 5px 5px 10px #4d4d4d30, -5px -5px 10px #45454530;
+        }
+
+            .login_form h5 {
+                text-align: center;
+                /* background: url('https://img.freepik.com/free-photo/selective-focus-soft-foliage-with-summer-light-background_640221-128.jpg?w=900&t=st=1684250234~exp=1684250834~hmac=f00a33283ed462a20880d76aed1c9e87619c78e6e5a3e17ab410e62b096981f5');
+                    background-size: 300%;
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    -webkit-text-fill-color: transparent; */
+                color: #00885a;
+                font-size: 40px;
+                letter-spacing: 3px;
+                font-weight: 600;
+                text-transform: uppercase;
+                margin-bottom: 10px;
+            }
+
+            .login_form .form-control {
+                background-color: rgba(255, 255, 255, 0) !important;
+                border: 0.5px solid #00885b6e;
+                /* border-radius: 0 0 12px 0;
+                    border-top: none;
+                    border-right: none;
+                    border-left: none; */
+                border-radius: 18px;
+            }
+
+        .forget_password {
+            color: #00885a;
+            font-size: 14px;
+        }
+
+            .forget_password a {
+                text-decoration: none;
+                color: #00885a;
+            }
+
+            .forget_password span {
+                float: right;
+            }
+
+        .login_email_input label,
+        .login_password_input label {
+            color: #00885a;
+            font-weight: 600;
+        }
+
+        .login_email_input,
+        .login_password_input {
+            margin-bottom: 12px;
+        }
+
+        .login_button {
+            width: 100%;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+            .login_button .login_button {
+                width: 100%;
+                border-radius: 26px;
+                font-size: 18px;
+                padding: 6px 26px;
+                background-color: #00885a;
+                color: #ffffff;
+            }
+
+                .login_button .login_button:hover {
+                    background-color: #026141;
+                    color: #ffffff;
+                }
+
+        .user_buttons {
+            margin-bottom: 40px !important;
+            /* border-bottom: 1px solid #c9ff7c; */
+        }
+
+            .user_buttons div .user_button {
+                padding: 0;
+                background-color: #ffffff;
+                color: #00885a;
+            }
+
+        .user_login, .admin_login {
+            display: none;
+        }
+
+        .active {
+            display: block !important;
+        }
+
+        .active_button {
+            border-bottom: 1px solid #00885b8f !important;
+            /* border-radius: 0 !important; */
+        }
+
+        .title {
+            text-align: right;
+            padding-top: 30px;
+            padding-right: 40px;
+        }
+
+            .title h4 {
+                font-size: 60px;
+                opacity: 0.6;
+                color: #ffffff;
+            }
+
+            .title h5 {
+                font-size: 20px;
+                opacity: 0.8;
+                color: #ffffff;
+            }
+    </style>
+</head>
+
+
+<body>
+    <EditForm Model="user" OnSubmit="SaveUser">
+    <div class="container login_page">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="login_form">
+                    <h5>Sign Up</h5>
+                    <div class="row user_buttons">
+                         
+                    </div>
+                    
+                    
+                    <div class="login_password_input">
+                        <label for="fullname" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="fullname" name="fullname" @bind-value="user.full_name"
+                               placeholder="" required>
+                    </div>
+                    <div class="login_password_input">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email"name="email" @bind-value="user.Email"
+                               placeholder="" required>
+                    </div>
+                    <div class="login_password_input">
+                        <label for="number" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="number" name="number" @bind-value="user.Phone"
+                               placeholder="" required>
+                    </div>
+                    <div class="login_password_input">
+                            <label for="address">Address:</label>
+                            <input class="form-control" name="address" id="address" rows="2" @bind-value="user.Address"></input>
+                        </div>
+
+                    <div class="login_password_input">
+                        <label for="DOB" class="form-label">Date of Birth</label>
+        
+        
+<input type="date" class="form-control" name="DOB" id="DOB" @bind-value="user.DOB" />
+                               
+                    </div>
+                    <div class="user_login active" id="div1">
+                        <div class="login_email_input">
+                            <label for="Username" class="form-label">UserName</label>
+                                <input type="text" class="form-control" name="email" id="Username" required @bind-value="user.Username">
+                        </div>
+                        <div class="login_password_input">
+                            <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" name="password" id="password"
+                                   placeholder="" required @bind-value="user.Password">
+                        </div>
+
+                            <div class="login_password_input">
+                                <label for="password" class="form-label">Role</label>
+                                <input type="text" class="form-control" name="password" id="password"
+                                       placeholder="" required @bind-value="user.role">
+                            </div>
+                    
+                        <div class="login_button">
+                                <button type="submit" class="btn login_button">SignUP</button><!--<a href="login" class="btn login_button">-->
+                        </div>
+
+                    </div>
+ 
+                </div>
+            </div>
+  
+<div class="col-md-8">
+                <div class="title">
+                    <h4>Join AggroEase</h4>
+                    <h5>First Pakistani Agricultural Marketplace</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    </EditForm>
+</body>
+
+ 
+@code {
+
+    private bool IsAuthenticated;
+    private string errorMessage;
+    Model_user user { get; set; } = new Model_user();
+   
+    
+
+    
+    private void SendMessage()
+
+    {
+        Console.WriteLine("In erreo funtion");
+        // Simple verification logic
+
+        //        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(message) || string.IsNullOrWhiteSpace(subject))
+
+
+
+        // Update markup to show an error message
+
+        errorMessage = "Every Input Field Must be filled";
+
+    }
+    
+
+    private void SaveUser()
+    {
+        
+        DB_helper.SignUp(user);
+        nm.NavigateTo("/login");
+    }
+
+
+
+
+    }
+
+}

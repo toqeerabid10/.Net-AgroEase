@@ -1,0 +1,176 @@
+﻿@page "/selectedproduct"
+@page "/selectedproduct/{SelectedCategory}"
+
+<h3 style="margin-left:30%;">SelectedCategoryData</h3>
+
+<h1 style="margin-left:30% ;margin-right:50%; background-color:green;color:white;font-weight:bold">@SelectedCategory</h1>
+
+<div class="container-fluid pt-5"  >
+    <h3>   Filtered Products</h3>
+    
+    @if (filteredProducts != null && filteredProducts.Any())
+    {
+      
+            <!--Call this when new user add-->
+
+            @foreach (var product in filteredProducts)
+            {
+             <div class="row px-xl-5 pb-3">
+            <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
+                <div class="card product-item border-0 mb-4">
+                    <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                        <p>Images: <img lass=" w-100" src="@($"data:image/png;base64,{product.prduct_image}")" alt="Product Images" /></p>
+
+                        @*  <img class="img-fluid w-100" src="img/images-c.jpeg" alt=""> *@
+                    </div>
+                    <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                        <h6 class="text-truncate mb-3">@product.Category</h6>
+                        <div class="d-flex justify-content-center">
+                            <h6>$@product.Product_price</h6><h6 class="text-muted ml-2"> </h6>
+                        </div>
+                    </div>
+                        <div class="card-footer d-flex justify-content-between bg-light border">
+                            <button style="background-color:light;" @onclick="() => ShowProductDetails(product)"> View Detail</button>
+                            <button style="background-color:light;" class="btn btn-warning" @onclick="() => ShowSellerDetails(product)">Contact</button>
+                        </div>
+                </div>
+            </div>
+            </div>
+            
+
+
+
+
+            }
+            @if (selectedProduct != null)
+            {
+                <div class="modal" style="display:block">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">@selectedProduct.Category</h5>
+                                <button type="button" class="close" @onclick="CloseModal">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>@($"Product name: {selectedProduct.Product_name}")</p>
+                                <p>@($"Description: {selectedProduct.Product_description}")</p>
+                                <p>@($"Condtion: {selectedProduct.Product_condition}")</p>
+                                <p>@($"Price: ${selectedProduct.Product_price}")</p>
+                                <p>@($"Availability:{selectedProduct.Isavailable}")</p>
+                                <p>@($"Quantity: {selectedProduct.Product_quantity}")</p>
+                                <!-- Display other details here -->
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            }
+
+            @if (selectedSeller != null)
+            {
+                <div class="modal" style="display:block">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Seller Details</h5>
+                                <button type="button" class="close" @onclick="CloseSellerModal">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>@($"Seller Name: {selectedSeller.full_name}")</p>
+                                <p>@($"Seller Email: {selectedSeller.Email}")</p>
+                                <p>@($"Seller Address: {selectedSeller.Address}")</p>
+                                <p>@($"Seller Phone no: {selectedSeller.Phone}")</p>
+                                <!-- Display other seller details here -->
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" @onclick="CloseSellerModal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+       
+    }
+    else
+    {
+        <p>No products found for the selected category.</p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? SelectedCategory { get; set; }
+    private List<model_userId> users_list { get; set; } = new List<model_userId>();
+    private List<Product_model> product_list { get; set; } = new List<Product_model>();
+    Product_model selectedProduct;
+    model_userId selectedSeller;
+    private int index;
+
+    List<Product_model> filteredProducts;
+
+    protected override void OnInitialized()
+    {
+        users_list = DB_helper.GetUser();
+        product_list = DB_helper.Getproduct();
+        //selectedSeller = users_list[0];
+        base.OnInitialized();
+
+        FilterProductsByCategory(SelectedCategory); // Initial category filter (Replace with desired category)
+    }
+
+    void FilterProductsByCategory(string category)
+    {
+        filteredProducts = product_list.Where(p => p.Category == category).ToList();
+    }
+
+    void ShowProductDetails(Product_model product)
+    {
+
+        selectedProduct = product;
+    }
+
+    void CloseModal()
+    {
+        selectedProduct = null;
+    }
+
+    void ShowSellerDetails(Product_model product)
+    {
+        GetSellerDetails(product.Userid);
+        selectedSeller = users_list[index];
+        StateHasChanged();
+    }
+
+    private void GetSellerDetails(int sellerID)
+    {
+        
+
+            
+        for (int i = 0; i < users_list.Count; i++)
+        {
+            if (users_list[i].UserId == sellerID)
+            {
+                index = i;
+                break;
+            }
+        }
+
+    }
+
+   
+    private void CloseSellerModal()
+    {
+        selectedSeller = null;
+    }
+
+
+
+}

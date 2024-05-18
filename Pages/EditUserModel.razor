@@ -1,0 +1,64 @@
+﻿<!-- EditUserModal.razor -->
+<div class="modal" style="display: @modalDisplay">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit User Information</h5>
+                <button type="button" class="close" @onclick="CloseModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Edit form for user information -->
+                <form>
+                    <div class="form-group">
+                        <label for="fullName">@selectedUser.full_name</label>
+                        <input type="text" class="form-control" id="fullName" @bind="selectedUser.full_name" />
+                        <label for="address">@selectedUser.Address</label>
+                        <input type="text" class="form-control" id="fullName" @bind="selectedUser.Address" />
+                        <label for="email">@selectedUser.Email</label>
+                        <input type="text" class="form-control" id="fullName" @bind="selectedUser.Email" />
+                        <label for="phone">@selectedUser.Phone</label>
+                        <input type="text" class="form-control" id="fullName" @bind="selectedUser.Phone" />
+                        <label for="username">@selectedUser.Username</label>
+                        <input type="text" class="form-control" id="fullName" @bind="selectedUser.Username" />
+                        
+                        
+                    </div>
+                    <!-- Other input fields for user information -->
+                    <!-- ... -->
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                <button type="button" class="btn btn-primary" @onclick="UpdateUser">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Properties
+    string modalDisplay = "none"; // To control modal display
+    model_userId selectedUser=new model_userId(); // User model (replace with your User model)
+
+    // Method to open modal and populate user information
+    public void OpenModal(model_userId user)
+    {
+        selectedUser = user; // Populate the selected user
+        modalDisplay = "block"; // Display the modal
+    }
+
+    // Method to close modal
+    public void CloseModal()
+    {
+        modalDisplay = "none"; // Hide the modal
+    }
+
+    // Method to update user information
+    public void UpdateUser()
+    {
+        // Implement logic to update the user information using selectedUser
+        // You may call an API, update in-memory data, etc.
+        // Close the modal after updating
+        CloseModal();
+    }
+}

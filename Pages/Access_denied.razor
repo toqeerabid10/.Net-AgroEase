@@ -1,0 +1,246 @@
+﻿@page "/userdashboard"
+@inject NavigationManager nm;
+@inject Authorization auth;
+<!-- Pages/UserDashboard.razor -->
+<style>
+    /* wwwroot/css/userdashboard.css */
+
+    .user-dashboard {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ddd; /* Border for the entire user dashboard */
+        border-radius: 5px;
+    }
+
+    header {
+        text-align: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #ddd; /* Border below the header */
+        padding-bottom: 10px;
+    }
+
+    section {
+        margin-bottom: 30px;
+        border-bottom: 1px solid #ddd; /* Border below each section */
+        padding-bottom: 20px;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    li {
+        margin-bottom: 10px;
+    }
+
+    button {
+        padding: 10px;
+        background-color: #dc3545;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+
+        button:hover {
+            background-color: #c82333;
+        }
+
+        button:disabled {
+            background-color: #d3d3d3;
+            cursor: not-allowed;
+        }
+
+    .list-group-item {
+        cursor: pointer;
+        padding: 7%;
+    }
+
+</style>
+<h1 style="color: white;font-weight:bold; background-color:darkgreen;margin-right:70%;">AggroEase User Dashboard</h1>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header" style="font-weight:bold;font-size:18px;">
+                    User Panel
+                </div>
+                <div class="list-group" style="padding:10%;">
+                    <a class="list-group-item list-group-item-action" style="background-color:lightgreen;" @onclick="SetPageUser">User Details</a>
+                    <a class="list-group-item list-group-item-action" @onclick="SetPageProduct">Products Details</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+
+                <div class="card-body">
+                    @if (pageTitle == "Users")
+                    {
+                        <div class="user-dashboard container mt-4">
+                            <section class="posted-items">
+                                <h3 style="background-color:green;color:white;font-weight:bold">User Personal Information</h3>
+                                <div class="col-md-3">
+                                    <ul>
+                                        <li><strong>Name:</strong> @modelUser.full_name</li>
+                                        <li><strong>Phone Number:</strong> @modelUser.Phone</li>
+                                        <li><strong>Username:</strong> @modelUser.Username</li>
+                                        <li><strong>Email:</strong> @modelUser.Email</li>
+                                        <li><strong>Address:</strong> @modelUser.Address</li>
+                                        <li><strong>Date of birth:</strong> @modelUser.DOB</li>
+                                        <li><strong>Password:</strong> @modelUser.Password</li>
+                                        <li><strong>role:</strong> @modelUser.role</li>
+                                        <!-- Add more items dynamically based on user data -->
+                                    </ul>
+                                </div>
+                            </section>
+
+                            <section class="delete-account">
+                                <h3 style="color:red">Are you sure you want to Delete Account?</h3>
+                                <button @onclick="()=>DeleteUsers(modelUser.UserId)">Yes, Delete My Account</button>
+                            </section>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" @onclick="AddItem">Add Item</button>
+                            <button class="btn btn-warning" @onclick="() => OpenUpdateModal(modelUser)">Update</button>
+
+                        </div>
+
+                        <div class="modal" style="display: @(modelUser == selectedUser ? "block" : "none")">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Edit User Information</h5>
+                                        <button type="button" class="close" @onclick="CloseModalUpdate">&times;</button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Edit form for user information -->
+                                        <form>
+                                            <div class="form-group">
+                                                <label for="fullName">Full Name</label>
+                                                <input type="text" class="form-control" id="fullName" @bind="modelUser.full_name" />
+                                                <label for="address">Address</label>
+                                                <input type="text" class="form-control" id="fullName" @bind="modelUser.Address" />
+                                                <label for="email">Email</label>
+                                                <input type="email" class="form-control" id="fullName" @bind="modelUser.Email" />
+                                                <label for="phone">Phone no</label>
+                                                <input type="text" class="form-control" id="fullName" @bind="modelUser.Phone" />
+                                                <label for="username">Username</label>
+                                                <input type="text" class="form-control" id="fullName" @bind="modelUser.Username" />
+                                            </div>
+                                            <!-- Other input fields for user information -->
+                                            <!-- ... -->
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" @onclick="CloseModalUpdate">Close</button>
+                                        <button type="button" class="btn btn-primary" @onclick="() => UpdateUsermodel(modelUser)">Save changes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                    }
+                    else if (pageTitle == "products")
+                    {
+                        @foreach (var product in filteredProducts)
+                        {
+                            <div class="row px-xl-5 pb-3" style="display:flex;">
+                                <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
+                                    <div class="card product-item border-0 mb-4">
+                                        <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                                            <p>Images: <img lass="img-fluid w-100" src="@($"data:image/png;base64,{product.prduct_image}")" alt="Product Images" /></p>
+
+                                            @*  <img class="img-fluid w-100" src="img/images-c.jpeg" alt=""> *@
+                                        </div>
+                                        <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                                            <h6 class="text-truncate mb-3">@product.Category</h6>
+                                            <div class="d-flex justify-content-center">
+                                                <h6>$@product.Product_price</h6><h6 class="text-muted ml-2"> </h6>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!--Main row div close-->
+                    }
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+@code {
+
+    private model_userId modelUser{ get; set; }=new model_userId();
+    private List<Product_model> product_list { get; set; } = new List<Product_model>();
+    List<Product_model> filteredProducts;
+    model_userId selectedUser = new model_userId();
+
+    protected   override void  OnInitialized()
+    {
+        modelUser = auth.getdetailsofuser();
+        product_list = DB_helper.Getproduct();
+        FilterProductsByid(modelUser.UserId);
+        base.OnInitialized();
+
+    }
+
+    void FilterProductsByid(int id)
+    {
+        filteredProducts = product_list.Where(p => p.Userid == id).ToList();
+    }
+
+    private void DeleteUsers(int id)
+    {
+        DB_helper.DeleteUser(id);
+        
+    }
+    private string pageTitle;
+
+    private void SetPageUser()
+    {
+        pageTitle = "Users";
+    }
+    private void SetPageProduct()
+    {
+        pageTitle = "products";
+    }
+
+    private void AddItem()
+    {
+        nm.NavigateTo("/seller");
+    }
+
+
+
+    public void OpenUpdateModal(model_userId user)
+    {
+        selectedUser = user ?? new model_userId();
+    }
+
+    public void CloseModalUpdate()
+    {
+        selectedUser = new model_userId(); // Reset selectedUser when closing the modal
+    }
+
+    public void UpdateUsermodel(model_userId user)
+    {
+        DB_helper.UpdateUser(user);
+
+        CloseModalUpdate();
+        
+    }
+}

@@ -1,0 +1,316 @@
+﻿@attribute [Authorize(Roles = "Admin")]
+@page "/admin"
+@inject Authorization auth;
+
+@if(auth.Getusername())
+{
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        Admin Panel
+                    </div>
+                    <div class="list-group">
+                        <a class="list-group-item list-group-item-action" @onclick="SetPageUser">Users</a>
+                        <a class="list-group-item list-group-item-action" @onclick="SetPageProduct">Products</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="card">
+
+                    <div class="card-body">
+                        @if (pageTitle == "Users")
+                        {
+                            @foreach (var user in users_list)
+                            {
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">User Information</h5>
+                                        <p class="card-text">
+                                            Full Name: @user.full_name<br />
+                                            Email: @user.Email <br />
+                                            Phone: @user.Phone <br />
+                                            Address: @user.Address <br />
+                                            Date of Birth: @user.DOB?.ToString("MM/dd/yyyy") <br />
+                                            Username: @user.Username <br />
+                                            Password: @user.Password <br />
+                                            Role: @user.role <br />
+                                            User ID: @user.UserId
+
+                                        </p>
+                                        <!--<button class="btn btn-primary" @onclick="() => AddItem()">Add</button>-->
+                                        <button class="btn btn-warning" @onclick="() => OpenUpdateModal(user)">Update</button>
+                                        <button class="btn btn-danger" @onclick="() => DeleteUsers(user.UserId)">Delete</button>
+                                    </div>
+                                </div>
+
+                                <!-- Modal for updating user -->
+                                <div class="modal" style="display: @(user == selectedUser ? "block" : "none")">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Edit User Information</h5>
+                                                <button type="button" class="close" @onclick="CloseModalUpdate">&times;</button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <!-- Edit form for user information -->
+                                                <form>
+                                                    <div class="form-group">
+                                                        <label for="fullName">Full Name</label>
+                                                        <input type="text" class="form-control" id="fullName" @bind="user.full_name" />
+                                                        <label for="address">Address</label>
+                                                        <input type="text" class="form-control" id="fullName" @bind="user.Address" />
+                                                        <label for="email">Email</label>
+                                                        <input type="email" class="form-control" id="fullName" @bind="user.Email" />
+                                                        <label for="phone">Phone no</label>
+                                                        <input type="text" class="form-control" id="fullName" @bind="user.Phone" />
+                                                        <label for="username">Username</label>
+                                                        <input type="text" class="form-control" id="fullName" @bind="user.Username" />
+                                                    </div>
+                                                    <!-- Other input fields for user information -->
+                                                    <!-- ... -->
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" @onclick="CloseModalUpdate">Close</button>
+                                                <button type="button" class="btn btn-primary" @onclick="() => UpdateUsermodel(user)">Save changes</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                        }
+                        else if (pageTitle == "products")
+                        {
+                            <div class="row px-xl-2 pb-3 " style="padding: 30px;height:80%;">
+                                <!--Main div and it display in row after4 product new row start-->
+                                @foreach (var product in product_list)
+                                {
+                                    <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
+                                        <!--Call this when new user add-->
+
+                                        <div class="card product-item border-0 mb-4">
+                                            <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                                                <p>Images: <img lass="img-fluid w-100" src="@($"data:image/png;base64,{product.prduct_image}")" alt="Product Images" /></p>
+
+                                                @*  <img class="img-fluid w-100" src="img/images-c.jpeg" alt=""> *@
+                                            </div>
+                                            <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                                                <h6 class="text-truncate mb-3">@product.Category</h6>
+                                                <div class="d-flex justify-content-center">
+                                                    <h6>$@product.Product_price</h6><h6 class="text-muted ml-2"> </h6>
+                                                </div>
+                                            </div>
+                                            <div class="card-footer d-flex justify-content-between bg-light border">
+
+                                                @*  <a href="details" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-green mr-1"></i>View Detail</a> *@
+                                            </div>
+                                            <div>
+                                            </div>
+                                            <div class="card-footer d-flex justify-content-between bg-light border">
+                                                <button style="background-color:light;" @onclick="() => ShowProductDetails(product)">View Detail</button>
+                                                <button style="background-color:light;" class="btn btn-warning" @onclick="() => ShowSellerDetails(product)">Contact</button>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                }
+                                @if (selectedSeller != null)
+                                {
+                                    <div class="modal" style="display:block">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Seller Details</h5>
+                                                    <button type="button" class="close" @onclick="CloseSellerModal">
+                                                        <span>&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>@($"Seller Name: {selectedSeller.full_name}")</p>
+                                                    <p>@($"Seller Email: {selectedSeller.Email}")</p>
+                                                    <p>@($"Seller Address: {selectedSeller.Address}")</p>
+                                                    <p>@($"Seller Phone no: {selectedSeller.Phone}")</p>
+                                                    <p>@($"Seller Username: {selectedSeller.Username}")</p>
+                                                    <!-- Display other seller details here -->
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button class="btn btn-secondary" @onclick="CloseSellerModal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                }
+
+
+                                @if (selectedProduct != null)
+                                {
+                                    <div class="modal" style="display:block">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">@selectedProduct.Category</h5>
+                                                    <button type="button" class="close" @onclick="CloseModal">
+                                                        <span>&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>@($"Product name: {selectedProduct.Product_name}")</p>
+                                                    <p>@($"Description: {selectedProduct.Product_description}")</p>
+                                                    <p>@($"Condtion: {selectedProduct.Product_condition}")</p>
+                                                    <p>@($"Price: ${selectedProduct.Product_price}")</p>
+                                                    <p>@($"Availability:{selectedProduct.Isavailable}")</p>
+                                                    <p>@($"Quantity: {selectedProduct.Product_quantity}")</p>
+                                                    <!-- Display other details here -->
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+
+
+
+
+                            </div>
+
+                            <!--Main row div close-->
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p>Access of page is restricted...!!</p>
+}
+
+
+@code {
+    private string pageTitle;
+    private List<model_userId> users_list { get; set; } = new List<model_userId>();
+    private List<Product_model> product_list { get; set; } = new List<Product_model>();
+    Product_model selectedProduct;
+    model_userId selectedSeller;
+    private int index;
+
+    void ShowProductDetails(Product_model product)
+    {
+
+        selectedProduct = product;
+    }
+
+    void CloseModal()
+    {
+        selectedProduct = null;
+    }
+
+
+
+    protected override void OnInitialized()
+    {
+        users_list = DB_helper.GetUser();
+        product_list = DB_helper.Getproduct();
+        //selectedSeller = users_list[0];
+        base.OnInitialized();
+        loadpage();
+    }
+
+    private void SetPageUser()
+    {
+        pageTitle = "Users";
+    }
+    private void SetPageProduct()
+    {
+        pageTitle = "products";
+    }
+
+
+    void ShowSellerDetails(Product_model product)
+    {
+        GetSellerDetails(product.Userid);
+        selectedSeller = users_list[index];
+        StateHasChanged();
+    }
+
+    private void GetSellerDetails(int sellerID)
+    {
+
+        for (int i = 0; i < users_list.Count; i++)
+        {
+            if (users_list[i].UserId == sellerID)
+            {
+                index = i;
+                break;
+            }
+        }
+
+    }
+
+
+    private void CloseSellerModal()
+    {
+        selectedSeller = null;
+    }
+
+    private void AddItem()
+    {
+        // Implement add logic here based on pageTitle
+        // For example, if (pageTitle == "Users"), add a user
+    }
+
+    private void UpdateItem()
+    {
+        // Implement update logic here based on pageTitle
+        // For example, if (pageTitle == "Products"), update a product
+    }
+
+    private void DeleteItem()
+    {
+        // Implement delete logic here based on pageTitle
+        // For example, if (pageTitle == "Users"), delete a user
+    }
+    private void DeleteUsers(int id)
+    {
+        DB_helper.DeleteUser(id);
+        loadpage();
+    }
+
+    private void loadpage()
+    {
+        users_list = DB_helper.GetUser();
+    }
+
+    model_userId selectedUser = new model_userId(); // Replace 'User' with your actual user model
+
+    public void OpenUpdateModal(model_userId user)
+    {
+        selectedUser = user ?? new model_userId();
+    }
+
+    public void CloseModalUpdate()
+    {
+        selectedUser = new model_userId(); // Reset selectedUser when closing the modal
+    }
+
+    public void UpdateUsermodel(model_userId user)
+    {
+        DB_helper.UpdateUser(user);
+
+        CloseModalUpdate();
+        loadpage();
+    }
+
+}
